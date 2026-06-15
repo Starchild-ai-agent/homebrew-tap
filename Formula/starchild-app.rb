@@ -37,13 +37,27 @@ class StarchildApp < Formula
     chmod 0755, bin/"starchild-app"
   end
 
+  # Link the app into /Applications so it shows up in Launchpad/Finder. Points at
+  # opt_prefix (stable across versions) so an upgrade keeps the link valid. Only
+  # replaces a prior symlink — never clobbers a real app a user placed there —
+  # and never fails the install if /Applications isn't writable.
+  def post_install
+    target = "/Applications/StarChild.app"
+    source = "#{opt_prefix}/StarChild.app"
+    File.delete(target) if File.symlink?(target)
+    File.symlink(source, target) unless File.exist?(target)
+  rescue StandardError => e
+    opoo "Couldn't link StarChild.app into /Applications: #{e.message}"
+  end
+
   def caveats
     <<~EOS
-      StarChild.app was built from source and installed to:
-        #{prefix}/StarChild.app
-      Launch with `starchild-app`, or symlink it into /Applications:
-        ln -sf "#{prefix}/StarChild.app" /Applications/
+      StarChild.app was built from source and linked into /Applications.
+      Launch it from Launchpad/Finder, or run `starchild-app` from the terminal.
       Compiled locally, so macOS Gatekeeper will not block it.
+
+      On `brew uninstall`, remove the leftover alias with:
+        rm -f /Applications/StarChild.app
     EOS
   end
 
