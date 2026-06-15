@@ -8,12 +8,18 @@ this tap can live on any git host (including a private/self-hosted one).
 
 ```sh
 brew tap starchild/tap <this-repo-git-url>
+brew trust starchild/tap      # required: brew refuses untrusted third-party taps
 brew install starchild        # CLI (prebuilt binary, self-updates after install)
 brew install starchild-app    # desktop app (built from source on your machine)
 ```
 
 `<this-repo-git-url>` is wherever you push this repo (self-hosted git, private
 GitLab/Gitea, GitHub, …). The repo name must keep the `homebrew-` prefix.
+
+> **`brew trust` is required.** Recent Homebrew refuses to load formulae from an
+> untrusted third-party tap (`Error: Refusing to load formula … from untrusted
+> tap`); run it once before installing. If Homebrew's auto-update hangs on a slow
+> network, prefix commands with `HOMEBREW_NO_AUTO_UPDATE=1`.
 
 ## Formulae
 
