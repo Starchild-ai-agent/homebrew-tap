@@ -26,7 +26,7 @@ GitLab/Gitea, GitHub, …). The repo name must keep the `homebrew-` prefix.
 | Formula | What | How it installs |
 |---------|------|-----------------|
 | `starchild` | CLI (single Go binary) | Downloads the prebuilt per-platform binary; self-updates afterward |
-| `starchild-app` | Desktop app (Tauri) | **Builds from source** (rust + node) — locally compiled, so macOS Gatekeeper doesn't block it; no signing/notarization needed |
+| `starchild-app` | Desktop app (Tauri) | **Builds from source** (rust + node) — locally compiled, so macOS Gatekeeper doesn't block it; no signing/notarization needed. Auto-symlinks into `/Applications`, and checks for newer versions in-app (offers `brew upgrade` from a Homebrew install). |
 
 ## Maintenance (per release)
 
@@ -38,6 +38,13 @@ sc-chatroom ships a new CLI. Get the shas from `tools/starchild/dist/`:
 for f in tools/starchild/dist/starchild-*; do shasum -a 256 "$f"; done
 ```
 
-**App** (`Formula/starchild-app.rb`): bump `version`, rebuild the source tarball
-into `sc-chatroom/tools/starchild-app/`, deploy, then update `url` + `sha256`.
+**App** (`Formula/starchild-app.rb`): use `starchild-app/scripts/release.sh app
+<version>` — it bumps `package.json` + `tauri.conf.json` + `src-tauri/Cargo.toml`
+(all three must match, or the in-app update check misreports), rebuilds the
+source tarball into `sc-chatroom/tools/starchild-app/`, and refreshes this
+formula's `url`/`version`/`sha256`. Then deploy sc-chatroom and push this tap.
 See `starchild-app/packaging/homebrew/RELEASE.md` for the full runbook.
+
+> Tip: run the app's `cargo build` once **before** packaging so the tarball's
+> `Cargo.lock` reflects the new version (otherwise a fresh `brew install`
+> regenerates it on first compile).
