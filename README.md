@@ -1,20 +1,17 @@
 # StarChild Homebrew Tap
 
-Homebrew formulae for StarChild. The source tarball / binaries are hosted by
-sc-chatroom (`workroom.iamstarchild.com`) — **no GitHub or public repo required**;
-this tap can live on any git host (including a private/self-hosted one).
+Homebrew formulae for StarChild. The source tarball / binaries are fetched from
+the StarChild build server; this tap can
+live on any git host (including a private/self-hosted one).
 
 ## Install
 
 ```sh
-brew tap starchild/tap <this-repo-git-url>
-brew trust starchild/tap      # required: brew refuses untrusted third-party taps
-brew install starchild        # CLI (prebuilt binary, self-updates after install)
-brew install starchild-app    # desktop app (built from source on your machine)
+brew tap starchild/tap https://github.com/Starchild-ai-agent/homebrew-tap
+brew trust starchild/tap      
+brew install starchild        
+brew install starchild-app    
 ```
-
-`<this-repo-git-url>` is wherever you push this repo (self-hosted git, private
-GitLab/Gitea, GitHub, …). The repo name must keep the `homebrew-` prefix.
 
 > **`brew trust` is required.** Recent Homebrew refuses to load formulae from an
 > untrusted third-party tap (`Error: Refusing to load formula … from untrusted
@@ -23,10 +20,10 @@ GitLab/Gitea, GitHub, …). The repo name must keep the `homebrew-` prefix.
 
 ## Formulae
 
-| Formula | What | How it installs |
-|---------|------|-----------------|
-| `starchild` | CLI (single Go binary) | Downloads the prebuilt per-platform binary; self-updates afterward |
-| `starchild-app` | Desktop app (Tauri) | **Builds from source** (rust + node) — locally compiled, so macOS Gatekeeper doesn't block it; no signing/notarization needed. Auto-symlinks into `/Applications`, and checks for newer versions in-app (offers `brew upgrade` from a Homebrew install). |
+| Formula         | What                   | How it installs                                                                                                                                                                                                                                          |
+| --------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `starchild`     | CLI (single Go binary) | Downloads the prebuilt per-platform binary; self-updates afterward                                                                                                                                                                                       |
+| `starchild-app` | Desktop app (Tauri)    | **Builds from source** (rust + node) — locally compiled, so macOS Gatekeeper doesn't block it; no signing/notarization needed. Auto-symlinks into `/Applications`, and checks for newer versions in-app (offers `brew upgrade` from a Homebrew install). |
 
 ## Maintenance (per release)
 
