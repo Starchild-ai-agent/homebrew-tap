@@ -14,7 +14,7 @@ class StarchildApp < Formula
   # (route /starchild-app/<file>, served from tools/starchild-app/).
   url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.4.4.tar.gz"
   version "0.4.4"
-  sha256 "3da9f28044ac4e43158398576ab2f7c60b7bfe6e8c5babb30ca73d8e93c76b7e"
+  sha256 "dd4295752fadf5901d8785ffaf0ec25bf8794f66fe71ffba86006b346a09312d"
   license :cannot_represent
 
   depends_on "node" => :build
