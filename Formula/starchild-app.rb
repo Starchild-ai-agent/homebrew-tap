@@ -29,12 +29,27 @@ class StarchildApp < Formula
 
     app = "src-tauri/target/release/bundle/macos/StarChild.app"
     prefix.install app
+    # Manual fallback script for refreshing /Applications/StarChild.app after
+    # a terminal-driven `brew upgrade`. The in-app Upgrade button does this
+    # via a detached shell; this is the recovery path for users who upgraded
+    # outside the app or whose detached shell failed. The script verifies
+    # the Cellar bundle before touching /Applications (see the script header).
+    prefix.install "scripts"
     # Expose a CLI launcher (formulae can't install into /Applications directly).
     (bin/"starchild-app").write <<~SH
       #!/bin/bash
       exec "#{prefix}/StarChild.app/Contents/MacOS/starchild-app" "$@"
     SH
     chmod 0755, bin/"starchild-app"
+    # PATH-accessible wrapper for the manual /Applications refresh script.
+    # Users who hit the "read_dir failed" warning during an in-app upgrade
+    # can just run `starchild-app-refresh-applications` instead of digging
+    # through the Cellar path.
+    (bin/"starchild-app-refresh-applications").write <<~SH
+      #!/bin/bash
+      exec "#{prefix}/scripts/refresh-applications.sh" "$@"
+    SH
+    chmod 0755, bin/"starchild-app-refresh-applications"
   end
 
   # Link the app into /Applications so it shows up in Launchpad/Finder. Points at
@@ -55,6 +70,9 @@ class StarchildApp < Formula
       StarChild.app was built from source and linked into /Applications.
       Launch it from Launchpad/Finder, or run `starchild-app` from the terminal.
       Compiled locally, so macOS Gatekeeper will not block it.
+
+      If /Applications/StarChild.app is stale after a terminal-driven
+      `brew upgrade`, run `starchild-app-refresh-applications` to refresh it.
 
       On `brew uninstall`, remove the leftover alias with:
         rm -f /Applications/StarChild.app
