@@ -15,11 +15,15 @@ class StarchildApp < Formula
   url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.4.13.tar.gz"
   version "0.4.13"
   sha256 "a6e509b8affd2f1a17433b53d30698f77d18861a2e451b184d0273c33b19afbd"
-  # Formula-only revision: post_install now does rm + cp -R instead of
-  # symlink (the symlink branch silently no-op'd on directory copies left
-  # over from prior in-app upgrades). Source tarball unchanged; users on
-  # 0.4.10 pick up 0.4.10_1 on their next `brew upgrade`.
-  revision 1
+  # Formula-only revision: bin/starchild-app wrapper now adds `|| echo ""`
+  # to the PlistBuddy version reads. Without it, `set -e` + bash's "assignment
+  # exit status inherits from command substitution" rule kills the wrapper
+  # silently when /Applications/StarChild.app is absent (typical first install),
+  # because PlistBuddy prints "File Doesn't Exist, Will Create: ..." to STDOUT
+  # (not STDERR — so `2>/dev/null` doesn't help) and exits non-zero. Source
+  # tarball unchanged; users on 0.4.13_1 pick up 0.4.13_2 on their next
+  # `brew upgrade`.
+  revision 2
   license :cannot_represent
 
   depends_on "node" => :build
@@ -56,8 +60,24 @@ class StarchildApp < Formula
       APPS="/Applications/StarChild.app"
       PREFIX_APP="#{prefix}/StarChild.app"
 
-      need=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$PREFIX_APP/Contents/Info.plist" 2>/dev/null)
-      have=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APPS/Contents/Info.plist" 2>/dev/null)
+      # `|| need=""` / `|| have=""` does two things at once:
+      #   1. Defeats bash's silent exit under `set -e` when the command
+      #      substitution fails. `x=$(false)` under set -e is enough to
+      #      kill the script — assignments inherit the substituted
+      #      command's exit status. Putting the override AFTER the
+      #      assignment makes it part of an `||` list, which set -e
+      #      specifically does not trigger on.
+      #   2. Replaces PlistBuddy's "File Doesn't Exist, Will Create: ..."
+      #      notice — which goes to STDOUT, not STDERR — with an empty
+      #      value, so the version compare below sees an honest empty
+      #      for an absent /Applications/StarChild.app instead of a
+      #      polluted error string that bypasses `2>/dev/null`.
+      #
+      # `|| echo ""` inside the substitution does NOT work — it adds an
+      # empty line AFTER the polluted stdout, so `$(...)` still captures
+      # the error message. Override the variable from outside instead.
+      need=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$PREFIX_APP/Contents/Info.plist" 2>/dev/null) || need=""
+      have=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APPS/Contents/Info.plist" 2>/dev/null) || have=""
       if [ -n "$need" ] && [ "$need" != "$have" ]; then
         printf '\\033[0;36m▸ refreshing /Applications/StarChild.app: v%s → v%s\\033[0m\\n' "${have:-missing}" "$need" >&2
         /bin/rm -rf "$APPS"
