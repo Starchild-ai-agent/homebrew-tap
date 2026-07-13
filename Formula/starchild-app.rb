@@ -35,21 +35,42 @@ class StarchildApp < Formula
     app = "src-tauri/target/release/bundle/macos/StarChild.app"
     prefix.install app
     # Manual fallback script for refreshing /Applications/StarChild.app after
-    # a terminal-driven `brew upgrade`. The in-app Upgrade button does this
-    # via a detached shell; this is the recovery path for users who upgraded
-    # outside the app or whose detached shell failed. The script verifies
-    # the Cellar bundle before touching /Applications (see the script header).
+    # a brew upgrade. Symlink-managed /Applications is the original design
+    # but brew's symlink silently no-ops when /Applications/StarChild.app
+    # is already a directory (left over from prior in-app upgrades or
+    # from the existing refresh-applications.sh), so /Applications ends
+    # up stale. The script verifies the Cellar bundle before touching
+    # /Applications (see the script header).
     prefix.install "scripts"
-    # Expose a CLI launcher (formulae can't install into /Applications directly).
+    # `starchild-app` — launcher wrapper. Refreshes /Applications/StarChild.app
+    # if it's stale (version mismatch with the freshly built Cellar leaf),
+    # then execs the binary. The refresh runs OUTSIDE brew's post_install
+    # Seatbelt sandbox (which blocks writes to /Applications), so it works
+    # from this user-invoked wrapper even though brew's own post_install
+    # cannot. This is what makes `brew upgrade starchild-app` + any
+    # `starchild-app` invocation (terminal, alias, dock-click on a fresh
+    # binary, …) refresh /Applications automatically.
     (bin/"starchild-app").write <<~SH
       #!/bin/bash
-      exec "#{prefix}/StarChild.app/Contents/MacOS/starchild-app" "$@"
+      set -e
+      APPS="/Applications/StarChild.app"
+      PREFIX_APP="#{prefix}/StarChild.app"
+
+      need=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$PREFIX_APP/Contents/Info.plist" 2>/dev/null)
+      have=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APPS/Contents/Info.plist" 2>/dev/null)
+      if [ -n "$need" ] && [ "$need" != "$have" ]; then
+        printf '\\033[0;36m▸ refreshing /Applications/StarChild.app: v%s → v%s\\033[0m\\n' "${have:-missing}" "$need" >&2
+        /bin/rm -rf "$APPS"
+        /usr/bin/ditto "$PREFIX_APP" "$APPS"
+      fi
+
+      exec "$PREFIX_APP/Contents/MacOS/starchild-app" "$@"
     SH
     chmod 0755, bin/"starchild-app"
-    # PATH-accessible wrapper for the manual /Applications refresh script.
-    # Users who hit the "read_dir failed" warning during an in-app upgrade
-    # can just run `starchild-app-refresh-applications` instead of digging
-    # through the Cellar path.
+    # `starchild-app-refresh-applications` — explicit refresh wrapper for the
+    # scripts/refresh-applications.sh flow (full brew upgrade + verify +
+    # refresh). Most users only need the launcher above; this is the
+    # recovery path if the launcher's no-op refresh was bypassed somehow.
     (bin/"starchild-app-refresh-applications").write <<~SH
       #!/bin/bash
       exec "#{prefix}/scripts/refresh-applications.sh" "$@"
@@ -57,62 +78,34 @@ class StarchildApp < Formula
     chmod 0755, bin/"starchild-app-refresh-applications"
   end
 
-  # Copy the freshly built .app into /Applications so the dock icon /
-  # Launchpad entry points at the new build. Always do a directory copy —
-  # `File.symlink` into /Applications is unreliable on real user machines
-  # (TCC / runtime resolution can drop the symlink, leaving /Applications
-  # stuck on a previous install), and the formula's earlier symlink-only
-  # variant silently no-op'd when /Applications/StarChild.app was already a
-  # directory left over from a prior in-app upgrade (which itself does
-  # rm + cp -R). This branch always replaces whatever's at /Applications
-  # with the freshly built bundle, gated on a version mismatch so re-runs
-  # without a version bump are a no-op.
-  #
-  # Use `ditto` (macOS's native bundle-copy tool) instead of `/bin/cp -R`
-  # because brew's post_install subprocess gets EPERM on plain `cp -R` to
-  # /Applications even though the same cp succeeds from a terminal as
-  # the same user — likely the com.apple.provenance xattr on prior
-  # /Applications/StarChild.app contents blocking non-native copy tools
-  # in brew's restricted environment. `ditto` strips and recreates the
-  # bundle cleanly and is the Apple-recommended way to copy .app bundles.
+  # post_install is a no-op for /Applications: brew's post_install Seatbelt
+  # sandbox denies writes to /Applications (the sandbox only allows Cellar +
+  # HOMEBREW_PREFIX + temp/cache/log + xcode), so any rm/cp/ditto to
+  # /Applications returns EPERM. The launcher wrapper above handles the
+  # refresh when the user actually invokes the binary (no sandbox there),
+  # which is the path that fires in practice after `brew upgrade`.
   def post_install
-    target = "/Applications/StarChild.app"
-    source = "#{opt_prefix}/StarChild.app"
-
-    installed_version = nil
-    if File.exist?("#{target}/Contents/Info.plist")
-      installed_version =
-        `/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "#{target}/Contents/Info.plist" 2>/dev/null`.strip
-    end
-
-    if installed_version == version
-      oh1 "/Applications/StarChild.app is already at v#{version} — skipping"
-      return
-    end
-
-    system "/bin/rm", "-rf", target
-    system "/usr/bin/ditto", source, target
-    oh1 "Refreshed /Applications/StarChild.app → v#{version} (was #{installed_version || 'missing'})"
-  rescue StandardError => e
-    opoo "Couldn't refresh /Applications/StarChild.app: #{e.message}"
+    oh1 "StarChild.app built at #{opt_prefix}/StarChild.app"
+    oh1 "Run `starchild-app` once to refresh /Applications/StarChild.app and launch."
   end
 
   def caveats
     <<~EOS
-      StarChild.app was built from source and copied into /Applications.
-      Launch it from Launchpad/Finder, or run `starchild-app` from the terminal.
-      Compiled locally, so macOS Gatekeeper will not block it.
+      StarChild.app was built from source into the Cellar. Launch it with
+      `starchild-app` (the launcher wrapper); on first invocation it will
+      refresh /Applications/StarChild.app to the freshly built bundle and
+      exec the binary. Subsequent invocations are a no-op when /Applications
+      is already current.
 
-      Each `brew upgrade starchild-app` refreshes /Applications/StarChild.app
-      to the freshly built bundle automatically. No manual refresh step is
-      needed for users who upgrade via Homebrew.
-
-      If a manual refresh is ever required (e.g. /Applications/StarChild.app
-      was deleted or replaced with an unrelated bundle), run
-      `starchild-app-refresh-applications`.
+      For users who upgrade via Homebrew:
+        brew upgrade starchild-app    # Cellar gets the new bundle
+        starchild-app                 # one invocation refreshes /Applications
+        # … from here on, the dock icon and Launchpad both launch the
+        # fresh bundle, and the in-app v0.4.10+ launch self-heal keeps
+        # /Applications in sync on future launches.
 
       On `brew uninstall`, remove the leftover alias with:
-        rm -f /Applications/StarChild.app
+        rm -rf /Applications/StarChild.app
     EOS
   end
 
