@@ -12,9 +12,9 @@ class StarchildApp < Formula
   homepage "https://iamstarchild.com"
   # Source tarball is published alongside the CLI by sc-chatroom
   # (route /starchild-app/<file>, served from tools/starchild-app/).
-  url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.4.10.tar.gz"
-  version "0.4.10"
-  sha256 "0dd5e7342d70064e2f11004fcb953ef32108ba68d6fd825a475749009d333b20"
+  url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.4.11.tar.gz"
+  version "0.4.11"
+  sha256 "1c7fc946ec0f1380c3fd6698cbf4884d8c2a48ea54a79c249980915a5068fa7a"
   # Formula-only revision: post_install now does rm + cp -R instead of
   # symlink (the symlink branch silently no-op'd on directory copies left
   # over from prior in-app upgrades). Source tarball unchanged; users on
