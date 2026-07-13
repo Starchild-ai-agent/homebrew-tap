@@ -19,7 +19,7 @@ class StarchildApp < Formula
   # symlink (the symlink branch silently no-op'd on directory copies left
   # over from prior in-app upgrades). Source tarball unchanged; users on
   # 0.4.10 pick up 0.4.10_1 on their next `brew upgrade`.
-  rebuild 1
+  revision 1
   license :cannot_represent
 
   depends_on "node" => :build
