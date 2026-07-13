@@ -68,13 +68,13 @@ class StarchildApp < Formula
   # with the freshly built bundle, gated on a version mismatch so re-runs
   # without a version bump are a no-op.
   #
-  # Use `/bin/rm` and `/bin/cp -R` via `system()` instead of `FileUtils`
-  # because in the formula context `FileUtils.cp_r` to /Applications has
-  # been observed throwing "Operation not permitted @ dir_s_mkdir" with
-  # the path duplicated as /Applications/StarChild.app/StarChild.app —
-  # a "copy INTO existing dir" pattern that fires when the prior
-  # `rm_rf` left the target in place. The shell utilities are predictable
-  # and produce a single, atomic refresh.
+  # Use `ditto` (macOS's native bundle-copy tool) instead of `/bin/cp -R`
+  # because brew's post_install subprocess gets EPERM on plain `cp -R` to
+  # /Applications even though the same cp succeeds from a terminal as
+  # the same user — likely the com.apple.provenance xattr on prior
+  # /Applications/StarChild.app contents blocking non-native copy tools
+  # in brew's restricted environment. `ditto` strips and recreates the
+  # bundle cleanly and is the Apple-recommended way to copy .app bundles.
   def post_install
     target = "/Applications/StarChild.app"
     source = "#{opt_prefix}/StarChild.app"
@@ -91,7 +91,7 @@ class StarchildApp < Formula
     end
 
     system "/bin/rm", "-rf", target
-    system "/bin/cp", "-R", source, target
+    system "/usr/bin/ditto", source, target
     oh1 "Refreshed /Applications/StarChild.app → v#{version} (was #{installed_version || 'missing'})"
   rescue StandardError => e
     opoo "Couldn't refresh /Applications/StarChild.app: #{e.message}"
