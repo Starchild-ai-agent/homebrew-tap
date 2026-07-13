@@ -67,6 +67,14 @@ class StarchildApp < Formula
   # rm + cp -R). This branch always replaces whatever's at /Applications
   # with the freshly built bundle, gated on a version mismatch so re-runs
   # without a version bump are a no-op.
+  #
+  # Use `/bin/rm` and `/bin/cp -R` via `system()` instead of `FileUtils`
+  # because in the formula context `FileUtils.cp_r` to /Applications has
+  # been observed throwing "Operation not permitted @ dir_s_mkdir" with
+  # the path duplicated as /Applications/StarChild.app/StarChild.app —
+  # a "copy INTO existing dir" pattern that fires when the prior
+  # `rm_rf` left the target in place. The shell utilities are predictable
+  # and produce a single, atomic refresh.
   def post_install
     target = "/Applications/StarChild.app"
     source = "#{opt_prefix}/StarChild.app"
@@ -82,9 +90,8 @@ class StarchildApp < Formula
       return
     end
 
-    FileUtils.rm_rf(target) if File.symlink?(target) || File.exist?(target)
-    FileUtils.mkdir_p("/Applications")
-    FileUtils.cp_r(source, target)
+    system "/bin/rm", "-rf", target
+    system "/bin/cp", "-R", source, target
     oh1 "Refreshed /Applications/StarChild.app → v#{version} (was #{installed_version || 'missing'})"
   rescue StandardError => e
     opoo "Couldn't refresh /Applications/StarChild.app: #{e.message}"
