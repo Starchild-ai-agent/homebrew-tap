@@ -74,8 +74,7 @@ class StarchildApp < Formula
     installed_version = nil
     if File.exist?("#{target}/Contents/Info.plist")
       installed_version =
-        `/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' ` \
-        `"#{target}/Contents/Info.plist" 2>/dev/null`.strip
+        `/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "#{target}/Contents/Info.plist" 2>/dev/null`.strip
     end
 
     if installed_version == version
