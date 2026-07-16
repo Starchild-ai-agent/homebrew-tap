@@ -12,18 +12,9 @@ class StarchildApp < Formula
   homepage "https://iamstarchild.com"
   # Source tarball is published alongside the CLI by sc-chatroom
   # (route /starchild-app/<file>, served from tools/starchild-app/).
-  url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.4.13.tar.gz"
-  version "0.4.13"
-  sha256 "a6e509b8affd2f1a17433b53d30698f77d18861a2e451b184d0273c33b19afbd"
-  # Formula-only revision: bin/starchild-app wrapper now adds `|| echo ""`
-  # to the PlistBuddy version reads. Without it, `set -e` + bash's "assignment
-  # exit status inherits from command substitution" rule kills the wrapper
-  # silently when /Applications/StarChild.app is absent (typical first install),
-  # because PlistBuddy prints "File Doesn't Exist, Will Create: ..." to STDOUT
-  # (not STDERR — so `2>/dev/null` doesn't help) and exits non-zero. Source
-  # tarball unchanged; users on 0.4.13_1 pick up 0.4.13_2 on their next
-  # `brew upgrade`.
-  revision 2
+  url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.4.14.tar.gz"
+  version "0.4.14"
+  sha256 "95e21cae5c3858c3a6216bf21f24749bc56ac2b771bf397f88b9de162f923dfb"
   license :cannot_represent
 
   depends_on "node" => :build
