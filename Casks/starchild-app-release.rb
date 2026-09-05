@@ -9,9 +9,14 @@ cask "starchild-app-release" do
   # formula, `brew install starchild-app`, can take hours on Intel Macs where
   # Homebrew provides no bottles).
   #
-  # Unsigned on purpose (no Apple Developer cert): brew downloads via curl,
-  # which never sets the quarantine xattr, so Gatekeeper does not assess the
-  # app — the same mechanism the source formula has always relied on.
+  # Unsigned on purpose (no Apple Developer cert). Homebrew 6 quarantines
+  # cask downloads (cask/download.rb → quarantine()), so Gatekeeper would
+  # assess the ad-hoc-signed app on first launch — the assessment fails and
+  # macOS shows the hard "'Starchild' is damaged and can't be opened" block
+  # with no "Open Anyway" path. The postflight below strips the quarantine
+  # attribute after install, matching what the source formula channel has
+  # always effectively done (a locally built app is never quarantined). The
+  # user still explicitly chose to install via brew.
   version "0.5.42"
 
   on_arm do
@@ -23,6 +28,11 @@ cask "starchild-app-release" do
     sha256 "d3e9fb69889b607b5e94f8b6a89ed41055062272e86b9697c88db296c582e720"
   end
   app "StarChild.app"
+
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/StarChild.app"]
+  end
 
   # The CLI companion is a separate formula (prebuilt binaries). Installing
   # the cask does not force it; the app's first-run flow handles it.
