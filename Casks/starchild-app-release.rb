@@ -12,15 +12,15 @@ cask "starchild-app-release" do
   # Unsigned on purpose (no Apple Developer cert): brew downloads via curl,
   # which never sets the quarantine xattr, so Gatekeeper does not assess the
   # app — the same mechanism the source formula has always relied on.
-  version "0.5.41"
+  version "0.5.41-9-gef01fd0"
 
   on_arm do
     url "https://workroom.iamstarchild.com/starchild-app-release/starchild-app-#{version}-macos-arm64.zip"
-    sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+    sha256 "3272c984a352eb7951b67162a814ceff531d49b6a556141614f95eba82630a0d"
   end
   on_intel do
     url "https://workroom.iamstarchild.com/starchild-app-release/starchild-app-#{version}-macos-intel.zip"
-    sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+    sha256 "ab15b10dde31725e1323e2e9456c991448d6cdbab662fa3f5fb6c957498ae55b"
   end
   app "StarChild.app"
 
