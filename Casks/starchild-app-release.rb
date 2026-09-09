@@ -29,9 +29,18 @@ cask "starchild-app-release" do
   end
   app "StarChild.app"
 
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/StarChild.app"]
+  # Homebrew 6.0.22+ deprecates `postflight` in favor of the declarative
+  # `postflight_steps`; the legacy stanza printed a warning on every brew
+  # command that loads this cask. `{{appdir}}` expands to the same appdir
+  # the `app` stanza moved the bundle to (no hard-coded /Applications);
+  # writable_paths grants the sandboxed step its xattr write;
+  # must_succeed: false keeps the legacy best-effort semantics — a
+  # quarantine-strip hiccup must not fail the install.
+  postflight_steps do
+    run "/usr/bin/xattr",
+        args: ["-dr", "com.apple.quarantine", "{{appdir}}/StarChild.app"],
+        writable_paths: ["{{appdir}}/StarChild.app"],
+        must_succeed: false
   end
 
   # The CLI companion is a separate formula (prebuilt binaries). Installing
