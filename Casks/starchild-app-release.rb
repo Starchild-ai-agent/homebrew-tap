@@ -17,15 +17,15 @@ cask "starchild-app-release" do
   # attribute after install, matching what the source formula channel has
   # always effectively done (a locally built app is never quarantined). The
   # user still explicitly chose to install via brew.
-  version "0.5.47-1-ga52e3a9"
+  version "0.5.47"
 
   on_arm do
     url "https://workroom.iamstarchild.com/starchild-app-release/starchild-app-#{version}-macos-arm64.zip"
-    sha256 "223a9368f2af4416486772c813abef74cec3da0f6dbc710b53963cba40396d9f"
+    sha256 "a05d94c9745fa64c00ebf49752376de81eb8b3ffa8056384c33db1f37ecfcbcc"
   end
   on_intel do
     url "https://workroom.iamstarchild.com/starchild-app-release/starchild-app-#{version}-macos-intel.zip"
-    sha256 "6d9efb9f6450707b0314ef0fda7176f7d0780e9c54006b29e3259543d5065f18"
+    sha256 "138374beed916011ac4cab7594c793a872b33c3804bad2dfdcd47b84814a96bd"
   end
   app "StarChild.app"
 
