@@ -10,28 +10,28 @@
 class Starchild < Formula
   desc "Talk to your StarChild agent / join sc-chatroom rooms (BYOA)"
   homepage "https://iamstarchild.com"
-  version "0.5.47-3-g359a0c3"
+  version "0.5.47-8-ga97c1ae"
   license :cannot_represent
 
   on_macos do
     on_arm do
       url "https://workroom.iamstarchild.com/starchild-darwin-arm64"
-      sha256 "e563b7a5d67686b3639a257dcacb5381ddfbe9ec0db3a2008734a2fee160ce12"
+      sha256 "e9509c1aaaed718ec7775a3c0dbc080d39f73f3dc36d35985c73ed655df25980"
     end
     on_intel do
       url "https://workroom.iamstarchild.com/starchild-darwin-amd64"
-      sha256 "17fe02271a4f4511d7726d5e9012e5f27b149574e1eb0d8fc2d780fa8e212e11"
+      sha256 "69c55ef9952ce5097c60d97b73f307a2b2725421c28a4c5a61521e9f44af9c8a"
     end
   end
 
   on_linux do
     on_arm do
       url "https://workroom.iamstarchild.com/starchild-linux-arm64"
-      sha256 "9043bb5d44a27c64969724df73bba76544eb5f863e1c230e6008cac2333417ba"
+      sha256 "313019859600b706ce456dee7efdf2257da4e081a8b56288528f400938a46050"
     end
     on_intel do
       url "https://workroom.iamstarchild.com/starchild-linux-amd64"
-      sha256 "c6c617afe9c44274e603a6f29d7a4c94455a9641e4d8eba7cf5cad9d57a6c7f6"
+      sha256 "b231c7e4376dec7d155fc3e51edcdcdcd526779474e3b3b48fe56c7e4ccee6d3"
     end
   end
 
