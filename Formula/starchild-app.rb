@@ -12,9 +12,9 @@ class StarchildApp < Formula
   homepage "https://iamstarchild.com"
   # Source tarball is published alongside the CLI by sc-chatroom
   # (route /starchild-app/<file>, served from tools/starchild-app/).
-  url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.5.61.tar.gz"
-  version "0.5.61"
-  sha256 "bcc83ef0f6a5d1123a6ca66e5ba77c4df8cbfedb7c8c6f7926d14370c8994b30"
+  url "https://workroom.iamstarchild.com/starchild-app/starchild-app-0.5.62.tar.gz"
+  version "0.5.62"
+  sha256 "5214b909140529d73ce579a81eadea2d5868ce53a0982e7b58925665ab941471"
   license :cannot_represent
 
   depends_on "node" => :build
