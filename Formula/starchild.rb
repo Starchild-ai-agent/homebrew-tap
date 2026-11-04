@@ -16,22 +16,22 @@ class Starchild < Formula
   on_macos do
     on_arm do
       url "https://workroom.iamstarchild.com/starchild-darwin-arm64"
-      sha256 "6f3bb6c3245e18660b096d5d57993a708550b92bf4c053de13ae6c0f5a6784a9"
+      sha256 "582f4d40ae5f3fa1988969d181560d11012a4daacf19f1d2466976533c0314a9"
     end
     on_intel do
       url "https://workroom.iamstarchild.com/starchild-darwin-amd64"
-      sha256 "f1206be8191b72c75b8cbe14c18071f2b980c599076d30d1be37cf6419007567"
+      sha256 "19d0b8a8dc3de5c197f3c1f5d19c77bdc12c48db47a63294fb7f7ddd70dbd0a1"
     end
   end
 
   on_linux do
     on_arm do
       url "https://workroom.iamstarchild.com/starchild-linux-arm64"
-      sha256 "a0483bc63d48d02b0839421b3bb6a3efc5c23a9eb5ff9a3c920245e92c1ff9bb"
+      sha256 "e450b6cd49b0deb7df71173b7c9e409e8299559eb1663b935a99c14a0b2756f7"
     end
     on_intel do
       url "https://workroom.iamstarchild.com/starchild-linux-amd64"
-      sha256 "cbef5e56356663b4653943a17c064d4297806248214322634a7778b18627e2e3"
+      sha256 "c6249b3c2b7a479c36e16c723b9df045b1534fac547b16dfc14c298e1de1029b"
     end
   end
 
