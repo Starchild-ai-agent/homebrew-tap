@@ -21,11 +21,11 @@ cask "starchild-app-release" do
 
   on_arm do
     url "https://workroom.iamstarchild.com/starchild-app-release/starchild-app-#{version}-macos-arm64.zip"
-    sha256 "a064d6ee6b1a719e16aa496c26844946e21107596cdf12a2f1a46eabd3488a69"
+    sha256 "8b46e99121ea9f66956cb1756eab22a08833f1567cdc31ba5ba6c61dff7ecdc5"
   end
   on_intel do
     url "https://workroom.iamstarchild.com/starchild-app-release/starchild-app-#{version}-macos-intel.zip"
-    sha256 "17a5241340e352084ba7ed7c5554971fcfd99a1eadf0d7b5897e6b989954a00b"
+    sha256 "81491536199cd4a64bd9a68d33dbb24e62f74bf37efb3a0b33a6a93bc4ef1524"
   end
   app "StarChild.app"
 
